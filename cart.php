@@ -1,32 +1,35 @@
 <?php
 // cart.php
-session_start();
+// JANGAN ada session_start() disini, karena sudah ada di header.php
 require_once 'classes/Cart.php';
-// Header sudah include session_start
-include_once 'template/header.php'; 
+include_once 'template/header.php';
 
+// Cek Login
 if (!isset($_SESSION['user_id'])) {
-    echo "<script>window.location.href='login.php';</script>"; exit;
+    echo "<script>window.location.href='login.php';</script>";
+    exit;
 }
 
 $cart = new Cart();
 $user_id = $_SESSION['user_id'];
 
-// Logic Hapus / Update
-if (isset($_GET['action']) && $_GET['action'] == 'remove' && isset($_GET['id'])) {
-    $cart->removeItem($_GET['id'], $user_id);
-    echo "<script>window.location.href='cart.php';</script>";
-}
-if (isset($_GET['action']) && $_GET['action'] == 'update') {
-    $cart->updateQuantity($_GET['id'], $_GET['qty'], $user_id);
-    echo "<script>window.location.href='cart.php';</script>";
+// Logic Hapus / Update Item
+if (isset($_GET['action'])) {
+    if ($_GET['action'] == 'remove' && isset($_GET['id'])) {
+        $cart->removeItem($_GET['id'], $user_id);
+        echo "<script>window.location.href='cart.php';</script>";
+    }
+    if ($_GET['action'] == 'update' && isset($_GET['id'])) {
+        $cart->updateQuantity($_GET['id'], $_GET['qty'], $user_id);
+        echo "<script>window.location.href='cart.php';</script>";
+    }
 }
 
 $items = $cart->getCartItems($user_id);
 $grand_total = 0;
 ?>
 
-<main class="container mt-4 mb-5">
+<div class="container mt-4 mb-5 page-content">
     <h2 class="mb-4"><i class="fas fa-shopping-cart me-2"></i>Keranjang Belanja</h2>
 
     <?php if (empty($items)): ?>
@@ -103,6 +106,9 @@ $grand_total = 0;
             </div>
         </div>
     <?php endif; ?>
-</main>
+</div>
 
-<?php include_once 'template/footer.php'; ?>
+<?php 
+// Ini penutup file cart.php yang benar
+include_once 'template/footer.php'; 
+?>
