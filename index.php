@@ -53,13 +53,19 @@ $books = $book->getAll(); // Ambil semua data buku
                             </h4>
                         </div>
                         <div class="card-footer bg-white border-top-0">
-                            <a href="detail_buku.php?id=<?php echo $b['id']; ?>" class="btn btn-primary w-100 mb-2">Lihat Detail</a>
-                            
-                           <button class="btn btn-success w-100 btn-add-to-cart" 
-                                data-book-id="<?php echo $b['id']; ?>">
-                                    Tambah ke Keranjang
-                            </button>
-                        </div>
+    <a href="detail_buku.php?id=<?php echo $b['id']; ?>" class="btn btn-primary w-100 mb-2">Lihat Detail</a>
+    
+    <?php if ($b['stock'] > 0): ?>
+        <button class="btn btn-success w-100 btn-add-to-cart" 
+                data-book-id="<?php echo $b['id']; ?>">
+                <i class="fas fa-cart-plus me-2"></i> Tambah ke Keranjang
+        </button>
+            <?php else: ?>
+                <button class="btn btn-secondary w-100" disabled>
+                    <i class="fas fa-ban me-2"></i> Stok Habis
+                </button>
+            <?php endif; ?>
+            </div>
                     </div>
                 </div>
             <?php endforeach; ?>
