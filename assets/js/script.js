@@ -5,14 +5,43 @@ $(document).ready(function() {
         e.preventDefault();
         
         var btn = $(this);
-        var originalText = btn.html(); // Simpan teks asli tombol
         var bookId = btn.data('book-id');
         
-        // 1. Ubah Tampilan Tombol (Feedback Visual)
-        btn.html('<i class="fas fa-spinner fa-spin"></i> Proses...');
-        btn.prop('disabled', true); // Matikan tombol sebentar
+        // 1. ANIMASI VISUAL: Zoom Gambar ke Tombol
+        var card = btn.closest('.card'); // Cari kotak pembungkus terdekat
+        var img = card.find('img').eq(0); // Cari gambar di dalam kotak itu
 
-        // 2. Kirim AJAX
+        if (img.length) {
+            // Kloning gambar
+            var clone = img.clone().offset({
+                top: img.offset().top,
+                left: img.offset().left
+            }).css({
+                'opacity': '0.8',
+                'position': 'absolute',
+                'height': img.height(),
+                'width': img.width(),
+                'z-index': '1000',
+                'border-radius': '10px' // Sedikit melengkung biar bagus
+            }).appendTo($('body'));
+
+            // Animasi "Masuk" ke dalam tombol
+            clone.animate({
+                'top': btn.offset().top,
+                'left': btn.offset().left + (btn.width() / 2), // Menuju tengah tombol
+                'width': '10px',
+                'height': '10px',
+                'opacity': '0.1'
+            }, 500, function() {
+                $(this).remove(); // Hapus kloningan setelah sampai
+            });
+        }
+
+        // 2. Ubah Tombol Sementara (Loading Effect)
+        var originalText = btn.html();
+        btn.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').prop('disabled', true);
+
+        // 3. Kirim AJAX ke Server
         $.ajax({
             type: "POST",
             url: "ajax/add_to_cart.php",
@@ -20,49 +49,40 @@ $(document).ready(function() {
             dataType: "json",
             success: function(response) {
                 if (response.success) {
-                    // A. Ubah Tombol jadi Hijau (Sukses)
+                    // A. Update Angka di Menu Keranjang (Navbar)
+                    // Cari link keranjang berdasarkan href
+                    var cartLink = $('a[href="cart.php"]'); 
+                    // Cari badge angka di dalamnya (jika ada)
+                    var badge = cartLink.find('.badge');
+
+                    if (badge.length === 0) {
+                        // Jika belum ada badge, buat baru
+                        cartLink.append(' <span class="badge bg-danger rounded-pill animate__animated animate__bounceIn">' + response.total_items + '</span>');
+                    } else {
+                        // Jika sudah ada, update angkanya
+                        badge.text(response.total_items);
+                        // Efek denyut kecil agar user sadar angka berubah
+                        badge.fadeOut(100).fadeIn(100); 
+                    }
+
+                    // B. Ubah tombol jadi "Berhasil" (Hijau)
                     btn.removeClass('btn-success').addClass('btn-secondary');
                     btn.html('<i class="fas fa-check"></i> Masuk Keranjang');
                     
-                    // B. Update Badge Keranjang di Navbar dengan Efek "Denyut"
-                    var cartIcon = $('.fa-shopping-cart').eq(0);
-                    var navLink = cartIcon.closest('.nav-link');
-                    var badge = navLink.find('.badge');
-                    
-                    // Update angka
-                    if (badge.length === 0) {
-                        navLink.append(' <span class="badge bg-danger rounded-pill cart-badge">' + response.total_items + '</span>');
-                        badge = navLink.find('.badge');
-                    } else {
-                        badge.text(response.total_items);
-                    }
-
-                    // Efek Animasi CSS manual pada Badge
-                    badge.css({
-                        'transform': 'scale(1.5)',
-                        'transition': '0.3s'
-                    });
-                    setTimeout(function(){ 
-                        badge.css('transform', 'scale(1)'); 
-                    }, 300);
-
-                    // C. Kembalikan tombol setelah 1 detik
+                    // Kembalikan tombol seperti semula setelah 1.5 detik
                     setTimeout(function() {
-                        btn.html(originalText);
-                        btn.prop('disabled', false);
                         btn.removeClass('btn-secondary').addClass('btn-success');
+                        btn.html(originalText).prop('disabled', false);
                     }, 1500);
 
                 } else {
-                    alert(response.message);
-                    btn.html(originalText);
-                    btn.prop('disabled', false);
+                    alert(response.message); // Tampilkan pesan error dari PHP (misal: belum login)
+                    btn.html(originalText).prop('disabled', false);
                 }
             },
             error: function() {
-                alert('Gagal menghubungi server.');
-                btn.html(originalText);
-                btn.prop('disabled', false);
+                alert('Gagal koneksi ke server.');
+                btn.html(originalText).prop('disabled', false);
             }
         });
     });
