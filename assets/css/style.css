@@ -1,0 +1,101 @@
+/* Import Font Modern dari Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    /* TEMA WARNA: Deep Ocean (Biru Tua Elegan) */
+    --primary-color: #0f172a;       /* Warna tombol utama / navbar */
+    --secondary-color: #334155;     /* Warna teks secondary */
+    --accent-color: #3b82f6;        /* Warna link / highlight */
+    --bg-light: #f8fafc;            /* Background halaman */
+    --card-bg: #ffffff;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+}
+
+body {
+    font-family: 'Poppins', sans-serif; /* Font jauh lebih modern */
+    background-color: var(--bg-light);
+    color: var(--secondary-color);
+}
+
+/* 1. NAVBAR MODERN (Putih Bersih dengan Shadow Halus) */
+.navbar {
+    background-color: var(--card-bg) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.navbar-brand {
+    color: var(--primary-color) !important;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    color: var(--secondary-color) !important;
+    font-weight: 500;
+    margin-left: 15px;
+    transition: 0.3s;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--accent-color) !important;
+}
+
+/* 2. KARTU PRODUK (Efek Timbul saat Hover) */
+.card {
+    border: none;
+    border-radius: 12px;
+    background-color: var(--card-bg);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Naik sedikit saat di-hover */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Agar gambar buku rapi ukurannya */
+.card-img-top {
+    height: 320px;
+    object-fit: cover; /* Gambar tidak gepeng */
+    object-position: center;
+}
+
+/* 3. TOMBOL (Konsisten & Rounded) */
+.btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s;
+}
+
+.btn-primary, .btn-success, .bg-primary {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.btn-primary:hover, .btn-success:hover {
+    background-color: var(--accent-color) !important;
+    transform: scale(1.02);
+}
+
+.btn-outline-secondary {
+    border: 1px solid #e2e8f0;
+    color: var(--secondary-color);
+}
+
+.btn-outline-secondary:hover {
+    background-color: #e2e8f0;
+    color: var(--primary-color);
+}
+
+/* 4. BADGE KERANJANG */
+.badge {
+    background-color: var(--danger-color) !important;
+}

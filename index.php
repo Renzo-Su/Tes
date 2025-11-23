@@ -1,71 +1,81 @@
 <?php
-// index.php (Halaman Utama)
-require_once 'classes/Book.php'; // Panggil class Book
-
-// Panggil header (header.php sudah otomatis panggil session_start())
+// index.php
+require_once 'classes/Book.php'; 
 include_once 'template/header.php';
 
-$book = new Book(); // Buat objek book
-$books = $book->getAll(); // Ambil semua data buku
+$book = new Book();
+$keyword = "";
+
+// LOGIKA PENCARIAN
+if (isset($_GET['cari']) && !empty($_GET['cari'])) {
+    $keyword = $_GET['cari'];
+    $books = $book->search($keyword); // Panggil method baru
+    $judul_halaman = "Hasil Pencarian: '<b>" . htmlspecialchars($keyword) . "</b>'";
+} else {
+    $books = $book->getAll();
+    $judul_halaman = "Katalog Pilihan";
+}
 ?>
 
-<div class="container">
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <h2>Selamat Datang di Toko Buku Online</h2>
-            
-            <?php if (isset($_SESSION['username'])): ?>
-                <p>Halo, <b><?php echo htmlspecialchars($_SESSION['username']); ?></b>! Selamat berbelanja.</p>
-            <?php else: ?>
-                <p>Silakan <a href="login.php">login</a> atau <a href="register.php">daftar</a> untuk mulai berbelanja.</p>
-            <?php endif; ?>
+<div class="container mt-5 mb-5 page-content">
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-dark mb-1"><?php echo $judul_halaman; ?></h2>
+            <p class="text-muted">Temukan buku favoritmu dan perluas wawasan.</p>
         </div>
+        <?php if(!empty($keyword)): ?>
+            <div class="col-md-4 text-end">
+                <a href="index.php" class="btn btn-outline-secondary rounded-pill"><i class="fas fa-sync-alt me-1"></i> Reset Filter</a>
+            </div>
+        <?php endif; ?>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <h3 class="mb-3">Katalog Buku</h3>
-            <hr>
-        </div>
-    </div>
-
-    <div class="row">
+    <div class="row g-4">
         <?php if (empty($books)): ?>
-            <div class="col-md-12">
-                <div class="alert alert-info">Belum ada buku yang tersedia saat ini.</div>
+            <div class="col-12 text-center py-5">
+                <div class="mb-3"><i class="fas fa-search fa-3x text-muted opacity-25"></i></div>
+                <h4 class="text-muted">Yah, buku yang dicari tidak ditemukan.</h4>
+                <a href="index.php" class="btn btn-primary mt-3">Lihat Semua Buku</a>
             </div>
         <?php else: ?>
             <?php foreach ($books as $b): ?>
-                <div class="col-md-3 col-sm-6 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <img src="assets/images/<?php echo htmlspecialchars($b['cover_image']); ?>" 
-                             class="card-img-top" 
-                             alt="<?php echo htmlspecialchars($b['title']); ?>"
-                             style="height: 300px; object-fit: cover;">
-                        
-                        <div class="card-body">
-                            <h5 class="card-title"><?php echo htmlspecialchars($b['title']); ?></h5>
-                            <p class="card-text text-muted"><?php echo htmlspecialchars($b['author']); ?></p>
-                            <span class="badge bg-secondary mb-2"><?php echo htmlspecialchars($b['category_name'] ?? 'N/A'); ?></span>
-                            
-                            <h4 class="card-text text-danger">
-                                Rp <?php echo number_format($b['price'], 0, ',', '.'); ?>
-                            </h4>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card h-100 position-relative">
+                        <span class="position-absolute top-0 start-0 bg-primary text-white px-3 py-1 m-3 rounded-pill small shadow-sm" style="z-index:2;">
+                            <?php echo htmlspecialchars($b['category_name'] ?? 'Umum'); ?>
+                        </span>
+
+                        <div class="overflow-hidden bg-light">
+                            <img src="assets/images/<?php echo htmlspecialchars($b['cover_image']); ?>" 
+                                 class="card-img-top" 
+                                 alt="<?php echo htmlspecialchars($b['title']); ?>">
                         </div>
-                        <div class="card-footer bg-white border-top-0">
-    <a href="detail_buku.php?id=<?php echo $b['id']; ?>" class="btn btn-primary w-100 mb-2">Lihat Detail</a>
-    
-    <?php if ($b['stock'] > 0): ?>
-        <button class="btn btn-success w-100 btn-add-to-cart" 
-                data-book-id="<?php echo $b['id']; ?>">
-                <i class="fas fa-cart-plus me-2"></i> Tambah ke Keranjang
-        </button>
-            <?php else: ?>
-                <button class="btn btn-secondary w-100" disabled>
-                    <i class="fas fa-ban me-2"></i> Stok Habis
-                </button>
-            <?php endif; ?>
-            </div>
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title fw-bold mb-1 text-truncate" title="<?php echo htmlspecialchars($b['title']); ?>">
+                                <?php echo htmlspecialchars($b['title']); ?>
+                            </h6>
+                            <p class="card-text text-muted small mb-3"><?php echo htmlspecialchars($b['author']); ?></p>
+                            
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="h5 fw-bold text-primary mb-0">
+                                    Rp <?php echo number_format($b['price'], 0, ',', '.'); ?>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
+                            <div class="d-grid gap-2">
+                                <a href="detail_buku.php?id=<?php echo $b['id']; ?>" class="btn btn-outline-secondary btn-sm">Detail</a>
+                                <?php if ($b['stock'] > 0): ?>
+                                    <button class="btn btn-success btn-sm btn-add-to-cart" data-book-id="<?php echo $b['id']; ?>">
+                                        <i class="fas fa-plus me-1"></i> Keranjang
+                                    </button>
+                                <?php else: ?>
+                                    <button class="btn btn-light btn-sm text-muted" disabled>Stok Habis</button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -73,7 +83,4 @@ $books = $book->getAll(); // Ambil semua data buku
     </div>
 </div>
 
-<?php
-// Panggil footer
-include_once 'template/footer.php';
-?>
+<?php include_once 'template/footer.php'; ?>
